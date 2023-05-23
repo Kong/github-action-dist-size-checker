@@ -44,6 +44,12 @@ runs:
           # get the warning limit use 80% of error if not defined
           warningLimit=$(jq -r ".distSizeChecker.warningLevel" "${pkg}"|sed 's/[^0-9\.]//gi')
           warningLimitUnit=$(jq -r ".distSizeChecker.warningLevel" "${pkg}"|sed 's/[0-9\.]//gi'|sed 's/ //g'|tr '[:lower:]' '[:upper:]')
+
+          if [[ -z ${warningLimit} &&  -z ${errorLimit} ]]; then
+            echo "${pkgName}: no limits defined, skipping..."
+            continue
+          fi
+
           if [[ -z ${warningLimit} ]]; then
             warningLimit=$(echo "${errorLimitKB}*0.8"|bc)
             warningLimit=${warningLimit%%.*}
