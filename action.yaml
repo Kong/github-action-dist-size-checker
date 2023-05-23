@@ -1,0 +1,79 @@
+name: 'Dist Size Checker'
+description: 'Checks the size of the dist folder and compare with limits defined'
+
+runs:
+  using: composite
+  steps:
+    - name: Check the size of dist folders
+      shell: bash
+      run: |
+        needsExit="false"
+
+        # find all  package.json files in the repo
+        for pkg in $(find ./  -name package.json | grep -v "node_modules/")
+        do
+          echo ""
+          pkgName=$(jq -r ".name" "${pkg}")
+
+          # for given package json find distSizeChecker property, skip if not found
+          if [[ $(jq -r ".distSizeChecker" "${pkg}") == null ]]; then
+            echo "${pkgName}: no distSizeChecker, skipping..."
+            continue
+          fi
+
+          # get the name of the dist folder, use `dist/` if not found
+          distFolder=${pkg/package.json/$(jq -r '.distSizeChecker.distFolder // "dist/"' "${pkg}")}
+          echo "distFolder=${distFolder}"
+
+          # check if distFolder present, if not skip
+          if [[ ! -d "${distFolder}" ]]; then
+            echo "${pkgName}: distFolder \"$distFolder\" does not exists, skipping..."
+            continue
+          fi
+
+          # get the error limit
+          errorLimit=$(jq -r ".distSizeChecker.errorLevel" "${pkg}"|sed 's/[^0-9\.]//gi')
+          errorLimitUnit=$(jq -r ".distSizeChecker.errorLevel" "${pkg}"|sed 's/[0-9\.]//gi'|sed 's/ //g'|tr '[:lower:]' '[:upper:]')
+          errorLimitKB=${errorLimit}
+          if [[ "${errorLimitUnit}" == "MB" ]]; then
+            errorLimitKB=$(echo "${errorLimit}*1000"|bc)
+            errorLimitKB=${errorLimitKB%%.*}
+          fi
+
+
+          # get the warning limit use 80% of error if not defined
+          warningLimit=$(jq -r ".distSizeChecker.warningLevel" "${pkg}"|sed 's/[^0-9\.]//gi')
+          warningLimitUnit=$(jq -r ".distSizeChecker.warningLevel" "${pkg}"|sed 's/[0-9\.]//gi'|sed 's/ //g'|tr '[:lower:]' '[:upper:]')
+          if [[ -z ${warningLimit} ]]; then
+            warningLimit=$(echo "${errorLimitKB}*0.8"|bc)
+            warningLimit=${warningLimit%%.*}
+            warningLimitUnit="KB"
+          fi
+          warningLimitKB=${warningLimit}
+          if [[ "${warningLimitUnit}" == "MB" ]]; then
+            warningLimitKB=$(echo "${warningLimit}*1000"|bc)
+            warningLimitKB=${warningLimitKB%%.*}
+          fi
+
+
+          # get the size of the dist folder
+          distSize=$(du  -sk --exclude="*.map" "${distFolder}"/|cut -d$'\t' -f 1)
+          # when on mac
+          #distSize=$(du  -sk -I "*.map" "${distFolder}"/|cut -d$'\t' -f 1)
+
+          echo "${pkgName}: warningLimit: ${warningLimit}${warningLimitUnit} (${warningLimitKB}KB) errorLimit: ${errorLimit}${errorLimitUnit} (${errorLimitKB}KB) distSize: ${distSize}KB"
+
+          # produce error if the size if the actual size exceeds error limit
+          if [[ ! -z "${errorLimit}"  &&  "${distSize}" -ge "${errorLimitKB}" ]]; then
+              echo "::error::For the package ${pkgName} produced \"dist/\" size ${distSize}KB exceeds max limit of ${errorLimit}${errorLimitUnit}."
+              needsExit="true"
+          # produce warning if the size if the actual size exceeds warning limit
+          elif [[ ! -z "${warningLimit}"  &&  "${distSize}" -ge "${warningLimitKB}" ]]; then
+              echo "::warning::For the package ${pkgName} produced \"dist/\" size ${distSize}KB exceeds warning limit of ${warningLimit}${warningLimitUnit}."
+          fi
+        done
+
+        # exit if at least one error was produced
+        if [[ "${needsExit}" == "true" ]]; then
+          exit 1
+        fi
