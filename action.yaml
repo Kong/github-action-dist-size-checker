@@ -23,7 +23,6 @@ runs:
 
           # get the name of the dist folder, use `dist/` if not found
           distFolder=${pkg/package.json/$(jq -r '.distSizeChecker.distFolder // "dist/"' "${pkg}")}
-          echo "distFolder=${distFolder}"
 
           # check if distFolder present, if not skip
           if [[ ! -d "${distFolder}" ]]; then
