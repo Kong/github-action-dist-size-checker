@@ -34,6 +34,8 @@ Both `errorLimit` and `warningLimit` needs to be specified in megabytes `MB` or 
 
 ## Defined Warning Limit example
 
+![image](https://github.com/Kong/github-action-dist-size-checker/assets/4562608/28e251d4-5c7d-4e82-96bc-d9b08ce16842)
+
 ## 90% for errorLimit example
 
 ![image](https://github.com/Kong/github-action-dist-size-checker/assets/4562608/b63e84d6-5f64-412e-93e4-7e4debf8174c)
