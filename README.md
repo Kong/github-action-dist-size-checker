@@ -20,7 +20,7 @@ where
 ||  |
 | -------- | ------- |
 **distFolder** | relative path to folder where assets are build (default `dist/`)
-**warningLimit**| when size of assets in the `distFolder` exceeds this limit - github warning is produced
+**warningLimit**| when size of assets in the `distFolder` exceeds this limit - github warning is produced. When this property is not specified, warning is producded when dist dist/ size greater of equal 90% for errorLimit
 **errorLimit**| when size of assets in the `distFolder` exceeds this limit - github error is produced
 
 Both `errorLimit` and `warningLimit` needs to be specified in megabytes `MB` or kilobytes `KB`.

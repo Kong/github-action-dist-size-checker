@@ -32,8 +32,8 @@ runs:
           fi
 
           # get the error limit
-          errorLimit=$(jq -r ".distSizeChecker.errorLevel" "${pkg}"|sed 's/[^0-9\.]//gi')
-          errorLimitUnit=$(jq -r ".distSizeChecker.errorLevel" "${pkg}"|sed 's/[0-9\.]//gi'|sed 's/ //g'|tr '[:lower:]' '[:upper:]')
+          errorLimit=$(jq -r ".distSizeChecker.errorLimit" "${pkg}"|sed 's/[^0-9\.]//gi')
+          errorLimitUnit=$(jq -r ".distSizeChecker.errorLimit" "${pkg}"|sed 's/[0-9\.]//gi'|sed 's/ //g'|tr '[:lower:]' '[:upper:]')
           errorLimitKB=${errorLimit}
           if [[ "${errorLimitUnit}" == "MB" ]]; then
             errorLimitKB=$(echo "${errorLimit}*1000"|bc)
@@ -41,17 +41,18 @@ runs:
           fi
 
 
-          # get the warning limit use 80% of error if not defined
-          warningLimit=$(jq -r ".distSizeChecker.warningLevel" "${pkg}"|sed 's/[^0-9\.]//gi')
-          warningLimitUnit=$(jq -r ".distSizeChecker.warningLevel" "${pkg}"|sed 's/[0-9\.]//gi'|sed 's/ //g'|tr '[:lower:]' '[:upper:]')
+          # get the warning limit use 90% of error if not defined
+          warningLimit=$(jq -r ".distSizeChecker.warningLimit" "${pkg}"|sed 's/[^0-9\.]//gi')
+          warningLimitUnit=$(jq -r ".distSizeChecker.warningLimit" "${pkg}"|sed 's/[0-9\.]//gi'|sed 's/ //g'|tr '[:lower:]' '[:upper:]')
 
           if [[ -z ${warningLimit} &&  -z ${errorLimit} ]]; then
             echo "${pkgName}: no limits defined, skipping..."
             continue
           fi
-
+          warningLimitSpecified=true
           if [[ -z ${warningLimit} ]]; then
-            warningLimit=$(echo "${errorLimitKB}*0.8"|bc)
+            warningLimitSpecified=false
+            warningLimit=$(echo "${errorLimitKB}*0.9"|bc)
             warningLimit=${warningLimit%%.*}
             warningLimitUnit="KB"
           fi
@@ -75,7 +76,11 @@ runs:
               needsExit="true"
           # produce warning if the size if the actual size exceeds warning limit
           elif [[ ! -z "${warningLimit}"  &&  "${distSize}" -ge "${warningLimitKB}" ]]; then
-              echo "::warning::For the package ${pkgName} produced \"dist/\" size ${distSize}KB exceeds warning limit of ${warningLimit}${warningLimitUnit}."
+              if [[ ${warningLimitSpecified} == "true" ]]; then
+                echo "::warning::For the package ${pkgName} produced \"dist/\" size ${distSize}KB exceeds warning limit of ${warningLimit}${warningLimitUnit}."
+              else
+                echo "::warning::For the package ${pkgName} produced \"dist/\" size ${distSize}KB is close to max limit of ${errorLimit}${errorLimitUnit}."
+              fi
           fi
         done
 
