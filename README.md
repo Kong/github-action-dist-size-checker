@@ -42,3 +42,5 @@ Both `errorLimit` and `warningLimit` needs to be specified in megabytes `MB` or 
 
 
 ## Error example
+
+![image](https://github.com/Kong/github-action-dist-size-checker/assets/4562608/324a5c33-87af-45e1-98da-9d7fef0882ba)
