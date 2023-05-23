@@ -72,14 +72,14 @@ runs:
 
           # produce error if the size if the actual size exceeds error limit
           if [[ ! -z "${errorLimit}"  &&  "${distSize}" -ge "${errorLimitKB}" ]]; then
-              echo "::error title=Disk Size Checker::For the package ${pkgName} produced \"dist/\" size ${distSize}KB exceeds max limit of ${errorLimit}${errorLimitUnit}."
+              echo "::error title=Dist Size Checker::For the package ${pkgName} produced \"dist/\" size ${distSize}KB exceeds max limit of ${errorLimit}${errorLimitUnit}."
               needsExit="true"
           # produce warning if the size if the actual size exceeds warning limit
           elif [[ ! -z "${warningLimit}"  &&  "${distSize}" -ge "${warningLimitKB}" ]]; then
               if [[ ${warningLimitSpecified} == "true" ]]; then
-                echo "::warning title=Disk Size Checker::For the package ${pkgName} produced \"dist/\" size ${distSize}KB exceeds warning limit of ${warningLimit}${warningLimitUnit}."
+                echo "::warning title=Dist Size Checker::For the package ${pkgName} produced \"dist/\" size ${distSize}KB exceeds warning limit of ${warningLimit}${warningLimitUnit}."
               else
-                echo "::warning title=Disk Size Checker::For the package ${pkgName} produced \"dist/\" size ${distSize}KB is close to max limit of ${errorLimit}${errorLimitUnit}."
+                echo "::warning title=Dist Size Checker::For the package ${pkgName} produced \"dist/\" size ${distSize}KB is close to max limit of ${errorLimit}${errorLimitUnit}."
               fi
           fi
         done
