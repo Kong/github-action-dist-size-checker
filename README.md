@@ -5,7 +5,7 @@
 - compare size if the `dist/` folder (excluding source map files), which the error and warning limits defined in `package.json`. If dist/ size is bigger - show error and cancel workflow or show warning.
 - works with mono-repositories (require each project's package.json to define its own limits)
 
-## usage
+## Usage
 
 - in package.json define following object:
 
@@ -25,7 +25,7 @@ where
 
 Both `errorLimit` and `warningLimit` needs to be specified in megabytes `MB` or kilobytes `KB`.
 
-- in your yaml wworkflow , after the build step
+- in your yaml workflow , after the build step:
 
 ```yaml
     - name: Check the bundle sizes
@@ -36,7 +36,7 @@ Both `errorLimit` and `warningLimit` needs to be specified in megabytes `MB` or 
 
 ![image](https://github.com/Kong/github-action-dist-size-checker/assets/4562608/28e251d4-5c7d-4e82-96bc-d9b08ce16842)
 
-## 90% for errorLimit example
+## 90% of errorLimit example
 
 ![image](https://github.com/Kong/github-action-dist-size-checker/assets/4562608/b63e84d6-5f64-412e-93e4-7e4debf8174c)
 
