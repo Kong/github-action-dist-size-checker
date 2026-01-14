@@ -1,5 +1,10 @@
 name: 'Dist Size Checker'
 description: 'Checks the size of the dist folder and compare with limits defined'
+inputs:
+  distFolder:
+    description: 'The folder to check size for, relative to package.json file'
+    required: false
+    default: 'dist/'
 
 runs:
   using: composite
@@ -22,7 +27,7 @@ runs:
           fi
 
           # get the name of the dist folder, use `dist/` if not found
-          distFolder=${pkg/package.json/$(jq -r '.distSizeChecker.distFolder // "dist/"' "${pkg}")}
+          distFolder=${pkg/package.json/$(jq -r  --arg distFolder "{{inputs.distFolder}}" '.distSizeChecker.distFolder // $distFolder' "${pkg}")}
 
           # check if distFolder present, if not skip
           if [[ ! -d "${distFolder}" ]]; then
