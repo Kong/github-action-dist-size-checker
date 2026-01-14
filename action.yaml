@@ -32,7 +32,7 @@ runs:
           fi
 
           # get the name of the dist folder, use `dist/` if not found
-          distFolder=${pkg/package.json/$(jq -r  --arg distFolder "{{inputs.distFolder}}" '.distSizeChecker.distFolder // $distFolder' "${pkg}")}
+          distFolder=${pkg/package.json/$(jq -r  --arg distFolder "${{ inputs.dist-folder }}" '.distSizeChecker.distFolder // $distFolder' "${pkg}")}
 
           # check if distFolder present, if not skip
           if [[ ! -d "${distFolder}" ]]; then
