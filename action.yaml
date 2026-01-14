@@ -1,16 +1,21 @@
 name: 'Dist Size Checker'
 description: 'Checks the size of the dist folder and compare with limits defined'
 inputs:
-  distFolder:
+  dist-folder:
     description: 'The folder to check size for, relative to package.json file'
     required: false
     default: 'dist/'
+  working-directory:
+    description: 'The folder to run the action in'
+    required: false
+    default: '.'
 
 runs:
   using: composite
   steps:
     - name: Check the size of dist folders
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: |
         needsExit="false"
 
